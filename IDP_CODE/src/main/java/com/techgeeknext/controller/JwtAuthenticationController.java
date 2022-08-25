@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.techgeeknext.config.JwtTokenUtil;
 import com.techgeeknext.model.JwtRequest;
 import com.techgeeknext.model.JwtResponse;
+import com.techgeeknext.config.saml;
 
 @RestController
 @CrossOrigin
@@ -33,6 +34,10 @@ public class JwtAuthenticationController {
 	@Autowired
 	private UserDetailsService jwtInMemoryUserDetailsService;
 
+	@Autowired
+	private SAMLWriter samlWriter;
+
+
 	@CrossOrigin(origins = "http://localhost:8083", maxAge = 3600)
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
 	public ResponseEntity<?> generateAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
@@ -44,6 +49,9 @@ public class JwtAuthenticationController {
 				.loadUserByUsername(authenticationRequest.getUsername());
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
+
+		String samlAssertionString = samlWriter.createSAMLAssertion();
+		System.out.println(samlAssertionString);
 
 		return ResponseEntity.ok(new JwtResponse(token));
 	}
